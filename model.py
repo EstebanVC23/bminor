@@ -1,0 +1,66 @@
+ # model.py
+
+
+""" 
+Modelo de nodos para el AST (Árbol de Sintaxis Abstracta)
+
+Cada clase representara cada una de las funciones en el parser, sus variables serán los "tokens" que se reciben en cada función. 
+Por ejemplo, la función "factor" recibe un token llamado "LITERAL_INTEGER", entonces el nodo "FactorLiteralInteger" tendrá una variable llamada "value" que almacenará el valor del token.
+"""
+
+"""
+Esta clase llamada "node" es la clase base para el AST, tiene como función almacenar la información de la línea sobre la que esta el parser, 
+esto para poder reportar el errore en la línea correcta, el metodo '__repr__' es para imprimirla de manera legible
+"""
+class Node:
+    lineno = 0
+    def __repr__(self):
+        fields = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
+        return f'{self.__class__.__name__}({fields})'
+    
+# Nodos literales. 
+
+class variable(Node):  
+    def __init__(self, name):
+        self.name = name  
+
+class IntegerLiteral(Node):
+    def __init__(self, value):
+       self.value = int(value)
+
+class FloatLiteral(Node):
+    def __init__(self, value):
+        self.value = float(value)   
+
+class CharLiteral(Node):
+    def __init__(self, value):
+        self.value = value[1:-1]  
+    
+class StringLiteral(Node):
+    def __init__(self, value):
+        self.value = value[1:-1]  
+        
+class BooleanLiteral(Node):
+    def __init__(self, value):
+        self.value = value == 'true'
+
+## Nodos para los tipos de datos
+
+class SimpleType(Node):
+    def __init__(self,name):
+        self.name = name                  #Esto es para almacenar el nombre del tipo de dato, por ejemplo "int", "float", "bool", "string" etc.
+
+class ArrayType(Node):
+    def __init__ (self, element_type, size):
+        self.size = size                  #Esto es para almacenar el tamaño del array, por ejemplo 10, 20, etc.
+        self.element_type = element_type  #Esto es para almacenar el tipo de dato del elemento del array, por ejemplo "int", "float", "bool", "string" etc.
+
+class FuncType(Node):
+    def __init__(self, return_type, param_types):
+        self.return_type = return_type    #Esto es para almacenar el tipo de dato de retorno de la función, por ejemplo "int", "float", "bool", "string" etc.
+        self.param_types = param_types    #Esto es para almacenar los tipos de datos de los parámetros de la función, por ejemplo ["int", "float"], ["string"], etc.
+
+class Param(Node):
+    def __init__(self, name, type):
+        self.name = name                  #Esto es para almacenar el nombre del parámetro, por ejemplo "x", "y", etc.
+        self.type = type                  #Esto es para almacenar el tipo de dato del parámetro, por ejemplo "int", "float", "bool", "string" etc.
