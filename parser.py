@@ -434,12 +434,12 @@ class Parser(sly.Parser):
 	@_("ARRAY index type_simple")
 	@_("ARRAY index type_array_sized")
 	def type_array_sized(self, p):
-		return ArrayType(p[2], p.index)
+		return ArrayType(p[2], p[1])
 		
 	@_("FUNCTION type_simple '(' opt_param_list ')'")
 	@_("FUNCTION type_array_sized '(' opt_param_list ')'")
-	def type_function(self, p):
-		return FuncType(p[1], p.opt_param_list)
+	def type_func(self, p):
+		return FuncType(p[1], p[4])
 		
 	@_("empty")
 	def opt_param_list(self, p):
@@ -516,6 +516,7 @@ if __name__ == '__main__':
 		filename = sys.argv[1]
 		
 	else:
+		
 		from file_picker import file_picker_dialog
 		
 		filename = file_picker_dialog(
