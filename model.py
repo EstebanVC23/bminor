@@ -92,14 +92,14 @@ class FuncDecl(Node):
         self.body = body                  #Esto es para almacenar el cuerpo de la función, que puede ser una lista de sentencias o una expresión.
 
 class ConstDecl(Node):
-    def __init__(self, name, value):
+    def __init__(self, name, type, value):
         self.name = name                  #Esto es para almacenar el nombre de la constante
         self.value = value                #Esto es para almacenar el valor de la constante  
 
 ##Nodos para los statements simples
 
 class ReturnStmt(Node):
-    def __init__(self, value=None):
+    def __init__(self, value=0):
         self.value = value                #Esto es para almacenar el valor de retorno de la función, que puede ser una expresión o una lista de sentencias. 
 
 class PrintStmt(Node):
@@ -117,3 +117,72 @@ class ContinueStmt(Node):
 class Block(Node):
     def __init__(self, statements):
         self.statements = statements      #Esto es para almacenar la lista de sentencias que conforman el bloque.
+        
+        
+##Nodos para expresiones
+
+class BinaryOp(Node):
+    def __init__(self, op, left, right):
+        self.op = op
+        self.left = left
+        self.right = right
+
+
+class UnaryOp(Node):
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+
+
+class Assign(Node):
+    def __init__(self, op, left, right):
+        self.op = op
+        self.left = left
+        self.right = right
+
+
+class PostfixOp(Node):
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+
+
+class PrefixOp(Node):
+    def __init__(self, op, expr):
+        self.op = op
+        self.expr = expr
+
+
+class Call(Node):
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+
+class ArrayAccess(Node):
+    def __init__(self, name, index):
+        self.name = name
+        self.index = index
+        
+        
+##Nodos de control de flujo
+
+class IfStmt(Node):
+    def __init__(self, condition, then_branch, else_branch=None):
+        self.condition = condition
+        self.then_branch = then_branch
+        self.else_branch = else_branch
+
+
+class WhileStmt(Node):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+
+class ForStmt(Node):
+    def __init__(self, init, condition, update, body):
+        self.init = init
+        self.condition = condition
+        self.update = update
+        self.body = body

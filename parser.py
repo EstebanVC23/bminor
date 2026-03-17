@@ -121,53 +121,51 @@ class Parser(sly.Parser):
 	# IF
 	# -------------------------------------------------
 	
-	@_("IF '(' opt_expr ')'")
-	def if_cond(self, p):
-		...
-		
-	@_("if_cond closed_stmt ELSE closed_stmt")
-	def if_stmt_closed(self, p):
-		...
-		
-	@_("if_cond stmt")
-	def if_stmt_open(self, p):
-		...
-		
 	@_("if_cond closed_stmt ELSE if_stmt_open")
 	def if_stmt_open(self, p):
-		...
+		return IfStmt(p.if_cond, as_block(p.closed_stmt), as_block(p.if_stmt_open))
+  
+	@_("if_cond stmt")
+	def if_stmt_open(self, p):
+		return IfStmt(p.if_cond, as_block(p.stmt))
+  
+	@_("if_cond closed_stmt ELSE closed_stmt")
+	def if_stmt_closed(self, p):
+		return IfStmt(p.if_cond, as_block(p.closed_stmt0), as_block(p.closed_stmt1))
 		
+	@_("IF '(' opt_expr ')'")
+	def if_cond(self, p):
+		return p.opt_expr
 	# -------------------------------------------------
 	# FOR
 	# -------------------------------------------------
 	
-	@_("FOR '(' opt_expr ';' opt_expr ';' opt_expr ')'")
-	def for_header(self, p):
-		...
+	@_("for_header closed_stmt")
+	def for_stmt_closed(self, p):
+		return ForStmt(p.for_header[0], p.for_header[1], p.for_header[2], as_block(p.closed_stmt))
 		
 	@_("for_header open_stmt")
 	def for_stmt_open(self, p):
-		...
+		return ForStmt(p.for_header[0], p.for_header[1], p.for_header[2], as_block(p.closed_stmt))
 		
-	@_("for_header closed_stmt")
-	def for_stmt_closed(self, p):
-		...
+	@_("FOR '(' opt_expr ';' opt_expr ';' opt_expr ')'")
+	def for_header(self, p):
+		return p.opt_expr0, p.opt_expr1, p.opt_expr2
 		
 	# -------------------------------------------------
 	# WHILE
 	# -------------------------------------------------
+	@_("while_cond closed_stmt")
+	def while_stmt_closed(self, p):
+		return WhileStmt(p.while_cond, as_block(p.closed_stmt))
+
+	@_("while_cond open_stmt")
+	def while_stmt_open(self, p):
+		return WhileStmt(p.while_cond, p.open_stmt)
 	
 	@_("WHILE '(' opt_expr ')'")
 	def while_cond(self, p):
-		...
-		
-	@_("while_cond open_stmt")
-	def while_stmt_open(self, p):
-		...
-		
-	@_("while_cond closed_stmt")
-	def while_stmt_closed(self, p):
-		...
+		return p.opt_expr
 		
 	# -------------------------------------------------
 	# SIMPLE STATEMENTS
@@ -205,7 +203,7 @@ class Parser(sly.Parser):
 	@_("'{' stmt_list '}'")
 	def block_stmt(self, p):
 		return Block(p.stmt_list)
-	
+		
 	# =================================================
 	# EXPRESIONES
 	# =================================================
@@ -240,7 +238,7 @@ class Parser(sly.Parser):
 	
 	@_("expr1")
 	def expr(self, p):
-		...
+		return p.expr1
 		
 	@_("lval  '='  expr1")
 	@_("lval ADDEQ expr1")
@@ -249,21 +247,21 @@ class Parser(sly.Parser):
 	@_("lval DIVEQ expr1")
 	@_("lval MODEQ expr1")
 	def expr1(self, p):
-		...
+		return Assign(p[1], p.lval, p.expr1)
 		
 	@_("expr2")
 	def expr1(self, p):
-		...
+		return p.expr2
 		
 	# ----------- LVALUES -------------------
 	
 	@_("ID")
 	def lval(self, p):
-		...
+		return variable(p.ID)
 		
 	@_("ID index")
 	def lval(self, p):
-		...
+		return ArrayAccess(p.ID, p.index)
 		
 	# -------------------------------------------------
 	# OPERADORES
@@ -271,19 +269,19 @@ class Parser(sly.Parser):
 	
 	@_("expr2 LOR expr3")
 	def expr2(self, p):
-		...
-		
+		return BinaryOp("||", p.expr2, p.expr3)
+
 	@_("expr3")
 	def expr2(self, p):
-		...
+		return p.expr3
 		
 	@_("expr3 LAND expr4")
 	def expr3(self, p):
-		...
+		return BinaryOp("&&", p.expr3, p.expr4)
 		
 	@_("expr4")
 	def expr3(self, p):
-		...
+		return p.expr4
 		
 	@_("expr4 EQ expr5")
 	@_("expr4 NE expr5")
@@ -292,100 +290,100 @@ class Parser(sly.Parser):
 	@_("expr4 GT expr5")
 	@_("expr4 GE expr5")
 	def expr4(self, p):
-		...
+		return BinaryOp(p[1], p.expr4, p.expr5)
 
 	@_("expr5")
 	def expr4(self, p):
-		...
+		return p.expr5
 		
 	@_("expr5 '+' expr6")
 	@_("expr5 '-' expr6")
 	def expr5(self, p):
-		...
+		return BinaryOp(p[1], p.expr5, p.expr6)
 		
 	@_("expr6")
 	def expr5(self, p):
-		...
+		return p.expr6
 		
 	@_("expr6 '*' expr7")
 	@_("expr6 '/' expr7")
 	@_("expr6 '%' expr7")
 	def expr6(self, p):
-		...
+		return BinaryOp(p[1], p.expr6, p.expr7)
 		
 	@_("expr7")
 	def expr6(self, p):
-		...
+		return p.expr7
 		
 	@_("expr7 '^' expr8")
 	def expr7(self, p):
-		...
+		return BinaryOp("^", p.expr7, p.expr8)
 		
 	@_("expr8")
 	def expr7(self, p):
-		...
+		return p.expr8
 		
 	@_("'-' expr8")
 	@_("'!' expr8")
 	def expr8(self, p):
-		...
+		return UnaryOp(p[0], p.expr8)
 
 	@_("expr9")
 	def expr8(self, p):
-		...
+		return p.expr9
 
 	@_("postfix")
 	def expr9(self, p):
-		...
+		return p.postfix
 
 	@_("primary")
 	def postfix(self, p):
-		...
+		return p.primary
 
 	@_("postfix INC")
 	def postfix(self, p):
-		...
+		return PostfixOp("++", p.postfix)
 
 	@_("postfix DEC")
 	def postfix(self, p):
-		...
+		return PostfixOp("--", p.postfix)
 
 	@_("prefix")
 	def primary(self, p):
-		...
+		return p.prefix
 
 	@_("INC prefix")
 	def prefix(self, p):
-		...
+		return PrefixOp("++", p.prefix)
 
 	@_("DEC prefix")
 	def prefix(self, p):
-		...
+		return PrefixOp("--", p.prefix)
 
 	@_("group")
 	def prefix(self, p):
-		...
+		return p.group
 		
 	@_("'(' expr ')'")
 	def group(self, p):
-		...
+		return p.expr
 		
 	@_("ID '(' opt_expr_list ')'")
 	def group(self, p):
-		...
+		return Call(p.ID, p.opt_expr_list)
 		
 	@_("ID index")
 	def group(self, p):
-		...
+		return ArrayAccess(p.ID, p.index)
 		
 	@_("factor")
 	def group(self, p):
-		...
+		return p.factor
 		
 	# INDICE DE ARREGLO
 	@_("'[' expr ']'")
 	def index(self, p):
-		...
+		return p.expr
 	
 	# -------------------------------------------------
 	# FACTORES
@@ -431,16 +429,16 @@ class Parser(sly.Parser):
 	@_("ARRAY '[' ']' type_simple")
 	@_("ARRAY '[' ']' type_array")
 	def type_array(self, p):
-		return ArrayType(p[3], None)
+		return ArrayType( p[3], None,)
 		
 	@_("ARRAY index type_simple")
 	@_("ARRAY index type_array_sized")
 	def type_array_sized(self, p):
-		return ArrayType(p[2], p[1])
+		return ArrayType(p[2], p.index)
 		
 	@_("FUNCTION type_simple '(' opt_param_list ')'")
 	@_("FUNCTION type_array_sized '(' opt_param_list ')'")
-	def type_func(self, p):
+	def type_function(self, p):
 		return FuncType(p[1], p.opt_param_list)
 		
 	@_("empty")
