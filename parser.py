@@ -537,3 +537,4 @@ if __name__ == '__main__':
 
 			graph = build_graphviz(ast)
 			graph.render('ast', format='png', cleanup=True)
+   
